@@ -302,7 +302,7 @@
 <div class="container">
   <header>
     <h1>融资项目进度看板</h1>
-    <p>彭清清 · 2026-10-13 16:25</p>
+    <p>彭清清 · 2026-10-13 16:41</p>
   </header>
 
   <section class="cards">
@@ -337,6 +337,7 @@
     <button class="tab active" data-tab="today">今日资产<span class="tab-badge" id="badgeToday">0</span></button>
     <button class="tab" data-tab="week">本周汇总<span class="tab-badge" id="badgeWeek">0</span></button>
     <button class="tab" data-tab="month">本月汇总<span class="tab-badge" id="badgeMonth">0</span></button>
+    <button class="tab" data-tab="year">年度汇总<span class="tab-badge" id="badgeYear">0</span></button>
     <button class="tab" data-tab="all">全部资产<span class="tab-badge" id="badgeAll">0</span></button>
   </div>
 
@@ -565,6 +566,79 @@
     </div>
   </div>
 
+  <!-- Tab: Year -->
+  <div class="tab-content" id="tab-year">
+    <div class="table-section">
+      <div class="analysis-panel" id="yearAnalysisPanel">
+        <div class="analysis-title">2026 年度总览（2026-01-01 ~ 2026-10-13）</div>
+        <div class="analysis-summary" id="yearTotalSummary"></div>
+        <ul class="analysis-list" id="yearInsights"></ul>
+        <div class="chart-row">
+          <div class="chart-box"><h4>分月新增资产（笔）</h4><canvas id="yearMonthCountChart"></canvas></div>
+          <div class="chart-box"><h4>分月融资额（万元）</h4><canvas id="yearMonthAmountChart"></canvas></div>
+        </div>
+      </div>
+      <p class="section-sub">2026 年度（2026-01-01 ~ 2026-10-13）各项目融资汇总</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>项目名称</th>
+              <th>放款银行</th>
+              <th class="text-right">年度新增资产</th>
+              <th class="text-right">已融资(笔)</th>
+              <th class="text-right">已融资(万)</th>
+              <th class="text-right">未融资(笔)</th>
+              <th class="text-right">平均放款时效</th>
+              <th>最短放款资产</th>
+              <th class="text-right">最短放款天数</th>
+            </tr>
+          </thead>
+          <tbody id="yearTable"></tbody>
+        </table>
+      </div>
+      <hr style="border:none;border-top:1px dashed var(--border);margin:20px 0;">
+      <p class="section-sub">2026 年度资产明细 · 已融资 <strong style="color:var(--green)" id="yearFinancedCount">0</strong> 笔 / 融资中 <strong style="color:#E65100" id="yearFinancingCount">0</strong> 笔 / 未融资 <strong style="color:var(--coral)" id="yearUnfinancedCount">0</strong> 笔 / 已废弃 <strong style="color:var(--red)" id="yearDiscardedCount">0</strong> 笔</p>
+      <div class="filter-bar" id="yearFilter">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="financed">已融资</button>
+        <button class="filter-btn" data-filter="financing">融资中</button>
+        <button class="filter-btn" data-filter="unfinanced">未融资</button>
+        <button class="filter-btn" data-filter="discarded">已废弃</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>序号</th>
+              <th>项目名称</th>
+              <th>供应商</th>
+              <th>资产编号</th>
+              <th>核心企业</th>
+              <th>放款银行</th>
+              <th>运营客服</th>
+              <th>融资状态</th>
+              <th class="text-right">融资金额(元)</th>
+              <th class="text-right">应收账款(万)</th>
+              <th>当前节点</th>
+              <th>上链日期</th>
+              <th>应收账款到期日</th>
+              <th>融资申请日期</th>
+              <th>放款日期</th>
+              <th>放款天数</th>
+            </tr>
+          </thead>
+          <tbody id="yearDetailTable"></tbody>
+        </table>
+      </div>
+      <div id="yearDetailEmpty" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">-</div>
+        <p>2026 年度暂无资产</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Tab: All -->
   <div class="tab-content" id="tab-all">
     <div class="table-section">
@@ -622,6 +696,8 @@ const weekData = [{"name": "渤海银行-港航桩业（卖方付息）", "bank"
 const weekTotals = {"new_count": 2, "financed_count": 1, "financed_amount_wan": 0.0, "unfinanced_count": 1, "avg_app_to_loan_days": null};
 const monthData = [{"name": "渤海银行-港航桩业（卖方付息）", "bank": "渤海银行天津分行", "new_count": 3, "financed_count": 2, "financed_amount_wan": 14.79, "unfinanced_count": 1, "financed_supplier_count": 1, "unfinanced_supplier_count": 1, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "XYL-20260928094537984", "supplier": "天津钰顺和运输有限公司", "app_to_loan_days": 0, "financed_amount_wan": 14.79, "financed_date": "2026-10-10"}, "slowest_asset": {"asset_id": "XYL-20260928094537984", "supplier": "天津钰顺和运输有限公司", "app_to_loan_days": 0, "financed_amount_wan": 14.79, "financed_date": "2026-10-10"}}];
 const monthTotals = {"new_count": 3, "financed_count": 2, "financed_amount_wan": 14.79, "unfinanced_count": 1, "avg_app_to_loan_days": 0.0};
+const yearData = [{"name": "联链通-渤海银行-卖方付息", "bank": "渤海银行武汉分行", "new_count": 36, "financed_count": 32, "financed_amount_wan": 1802.96, "unfinanced_count": 4, "financed_supplier_count": 11, "unfinanced_supplier_count": 3, "avg_app_to_loan_days": 3.6, "fastest_asset": {"asset_id": "XYL-20260206165729211", "supplier": "武汉智能居安装工程有限公司", "app_to_loan_days": 0, "financed_amount_wan": 43.97, "financed_date": "2026-05-15"}, "slowest_asset": {"asset_id": "XYL-20260212181059515", "supplier": "武汉奥青科技有限公司", "app_to_loan_days": 33, "financed_amount_wan": 17.6, "financed_date": "2026-03-19"}}, {"name": "渤海银行-港航桩业（卖方付息）", "bank": "渤海银行天津分行", "new_count": 34, "financed_count": 22, "financed_amount_wan": 1922.39, "unfinanced_count": 12, "financed_supplier_count": 10, "unfinanced_supplier_count": 9, "avg_app_to_loan_days": 2.6, "fastest_asset": {"asset_id": "XYL-20260205112944477", "supplier": "天津鑫地物流有限公司", "app_to_loan_days": 0, "financed_amount_wan": 79.75, "financed_date": "2026-02-11"}, "slowest_asset": {"asset_id": "XYL-20260211112453076", "supplier": "天津顺达金属结构有限公司", "app_to_loan_days": 12, "financed_amount_wan": 79.95, "financed_date": "2026-02-26"}}, {"name": "上行e链--鸿庐贸易", "bank": "上海银行", "new_count": 24, "financed_count": 24, "financed_amount_wan": 4999.13, "unfinanced_count": 0, "financed_supplier_count": 9, "unfinanced_supplier_count": 0, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "WEC-20260727133529855", "supplier": "常熟市友佳化工有限公司", "app_to_loan_days": 0, "financed_amount_wan": 640.8, "financed_date": "2026-07-27"}, "slowest_asset": {"asset_id": "WEC-20260727133529855", "supplier": "常熟市友佳化工有限公司", "app_to_loan_days": 0, "financed_amount_wan": 640.8, "financed_date": "2026-07-27"}}, {"name": "渤海银行-港航桩业（买方付息）", "bank": "渤海银行天津分行", "new_count": 16, "financed_count": 15, "financed_amount_wan": 978.83, "unfinanced_count": 1, "financed_supplier_count": 8, "unfinanced_supplier_count": 1, "avg_app_to_loan_days": 2.4, "fastest_asset": {"asset_id": "XYL-20260616165628145", "supplier": "天津振阳天然气销售有限公司", "app_to_loan_days": 0, "financed_amount_wan": 28.74, "financed_date": "2026-06-26"}, "slowest_asset": {"asset_id": "XYL-20260205112933422", "supplier": "天津诚源达建材销售有限公司", "app_to_loan_days": 13, "financed_amount_wan": 50.0, "financed_date": "2026-02-26"}}, {"name": "联链通-渤海银行-买方付息", "bank": "渤海银行武汉分行", "new_count": 12, "financed_count": 11, "financed_amount_wan": 4039.16, "unfinanced_count": 1, "financed_supplier_count": 9, "unfinanced_supplier_count": 1, "avg_app_to_loan_days": 3.5, "fastest_asset": {"asset_id": "XYL-20260203104159004", "supplier": "武汉神宇电气有限公司", "app_to_loan_days": 0, "financed_amount_wan": 263.77, "financed_date": "2026-02-06"}, "slowest_asset": {"asset_id": "XYL-20260303161907645", "supplier": "武汉世纪恒安基础工程有限公司", "app_to_loan_days": 17, "financed_amount_wan": 12.92, "financed_date": "2026-03-26"}}, {"name": "上行e链--宁波金知新", "bank": "上海银行", "new_count": 7, "financed_count": 7, "financed_amount_wan": 2000.01, "unfinanced_count": 0, "financed_supplier_count": 6, "unfinanced_supplier_count": 0, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "WEC-20260819142418117", "supplier": "南通大浩纺织品有限公司", "app_to_loan_days": 0, "financed_amount_wan": 92.97, "financed_date": "2026-08-20"}, "slowest_asset": {"asset_id": "WEC-20260819142418117", "supplier": "南通大浩纺织品有限公司", "app_to_loan_days": 0, "financed_amount_wan": 92.97, "financed_date": "2026-08-20"}}, {"name": "上行e链--沃之鲜供应链", "bank": "上海银行", "new_count": 5, "financed_count": 5, "financed_amount_wan": 5000.0, "unfinanced_count": 0, "financed_supplier_count": 3, "unfinanced_supplier_count": 0, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "WEC-20260922103052169", "supplier": "武汉市徽记国际贸易有限公司", "app_to_loan_days": 0, "financed_amount_wan": 1000.0, "financed_date": "2026-09-23"}, "slowest_asset": {"asset_id": "WEC-20260922103052169", "supplier": "武汉市徽记国际贸易有限公司", "app_to_loan_days": 0, "financed_amount_wan": 1000.0, "financed_date": "2026-09-23"}}, {"name": "高济健康-渤海银行（卖方付息）", "bank": "渤海银行天津分行", "new_count": 2, "financed_count": 2, "financed_amount_wan": 9602.68, "unfinanced_count": 0, "financed_supplier_count": 1, "unfinanced_supplier_count": 0, "avg_app_to_loan_days": 4.0, "fastest_asset": {"asset_id": "XYL-20260401165536094", "supplier": "高济医药（成都）有限公司", "app_to_loan_days": 4, "financed_amount_wan": 8403.34, "financed_date": "2026-04-07"}, "slowest_asset": {"asset_id": "XYL-20260401165536094", "supplier": "高济医药（成都）有限公司", "app_to_loan_days": 4, "financed_amount_wan": 8403.34, "financed_date": "2026-04-07"}}, {"name": "上行e链--赛德半导体", "bank": "上海银行", "new_count": 2, "financed_count": 2, "financed_amount_wan": 2000.0, "unfinanced_count": 0, "financed_supplier_count": 2, "unfinanced_supplier_count": 0, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "WEC-20260611094630690", "supplier": "深圳市钧睿科技有限公司", "app_to_loan_days": 0, "financed_amount_wan": 1000.0, "financed_date": "2026-06-12"}, "slowest_asset": {"asset_id": "WEC-20260611094630690", "supplier": "深圳市钧睿科技有限公司", "app_to_loan_days": 0, "financed_amount_wan": 1000.0, "financed_date": "2026-06-12"}}];
+const yearTotals = {"new_count": 138, "financed_count": 120, "financed_amount_wan": 32345.16, "unfinanced_count": 18, "avg_app_to_loan_days": 1.8};
 const prevWeekData = [{"name": "渤海银行-港航桩业（卖方付息）", "bank": "渤海银行天津分行", "new_count": 1, "financed_count": 1, "financed_amount_wan": 14.79, "unfinanced_count": 0, "financed_supplier_count": 1, "unfinanced_supplier_count": 0, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "XYL-20260928094537984", "supplier": "天津钰顺和运输有限公司", "app_to_loan_days": 0, "financed_amount_wan": 14.79, "financed_date": "2026-10-10"}, "slowest_asset": {"asset_id": "XYL-20260928094537984", "supplier": "天津钰顺和运输有限公司", "app_to_loan_days": 0, "financed_amount_wan": 14.79, "financed_date": "2026-10-10"}}];
 const prevWeekTotals = {"new_count": 1, "financed_count": 1, "financed_amount_wan": 14.79, "unfinanced_count": 0, "avg_app_to_loan_days": 0.0};
 const prevMonthData = [{"name": "联链通-渤海银行-卖方付息", "bank": "渤海银行武汉分行", "new_count": 5, "financed_count": 4, "financed_amount_wan": 276.96, "unfinanced_count": 1, "financed_supplier_count": 3, "unfinanced_supplier_count": 1, "avg_app_to_loan_days": 1.7, "fastest_asset": {"asset_id": "XYL-20260911173730904", "supplier": "宜昌酬勤贸易有限公司", "app_to_loan_days": 1, "financed_amount_wan": 115.5, "financed_date": "2026-09-15"}, "slowest_asset": {"asset_id": "XYL-20260917100044830", "supplier": "湖北腾灿建设工程有限公司", "app_to_loan_days": 3, "financed_amount_wan": 135.3, "financed_date": "2026-09-21"}}, {"name": "渤海银行-港航桩业（买方付息）", "bank": "渤海银行天津分行", "new_count": 2, "financed_count": 1, "financed_amount_wan": 26.93, "unfinanced_count": 1, "financed_supplier_count": 1, "unfinanced_supplier_count": 1, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "XYL-20260918084624517", "supplier": "北京通冶精鑫商贸有限公司", "app_to_loan_days": 0, "financed_amount_wan": 26.93, "financed_date": "2026-09-20"}, "slowest_asset": {"asset_id": "XYL-20260918084624517", "supplier": "北京通冶精鑫商贸有限公司", "app_to_loan_days": 0, "financed_amount_wan": 26.93, "financed_date": "2026-09-20"}}, {"name": "上行e链--沃之鲜供应链", "bank": "上海银行", "new_count": 2, "financed_count": 2, "financed_amount_wan": 2000.0, "unfinanced_count": 0, "financed_supplier_count": 2, "unfinanced_supplier_count": 0, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "WEC-20260922103052169", "supplier": "武汉市徽记国际贸易有限公司", "app_to_loan_days": 0, "financed_amount_wan": 1000.0, "financed_date": "2026-09-23"}, "slowest_asset": {"asset_id": "WEC-20260922103052169", "supplier": "武汉市徽记国际贸易有限公司", "app_to_loan_days": 0, "financed_amount_wan": 1000.0, "financed_date": "2026-09-23"}}, {"name": "上行e链--宁波金知新", "bank": "上海银行", "new_count": 1, "financed_count": 1, "financed_amount_wan": 474.29, "unfinanced_count": 0, "financed_supplier_count": 1, "unfinanced_supplier_count": 0, "avg_app_to_loan_days": 0.0, "fastest_asset": {"asset_id": "WEC-20260904105527513", "supplier": "宁波磊盟服饰有限公司", "app_to_loan_days": 0, "financed_amount_wan": 474.29, "financed_date": "2026-09-04"}, "slowest_asset": {"asset_id": "WEC-20260904105527513", "supplier": "宁波磊盟服饰有限公司", "app_to_loan_days": 0, "financed_amount_wan": 474.29, "financed_date": "2026-09-04"}}];
@@ -1079,6 +1155,129 @@ document.getElementById('monthFilter').addEventListener('click', function(e) {
 });
 
 renderMonthDetail('all');
+
+// === Year summary tab ===
+var yearStart = '2026-01-01';
+var yearAssets = assets.filter(function(a) { return a.chain_date && a.chain_date >= yearStart && a.chain_date <= todayStr; });
+
+document.getElementById('badgeYear').textContent = yearTotals.new_count;
+
+// 年度总览文字 + 洞察
+(function renderYearOverview() {
+  var t = yearTotals;
+  var el = document.getElementById('yearTotalSummary');
+  if (el) {
+    el.innerHTML = '2026 年 1 月 1 日至今，累计新增资产 <strong>' + t.new_count + '</strong> 笔；已融资 <strong>' + t.financed_count + '</strong> 笔 / <strong>' + fmt(t.financed_amount_wan) + '</strong> 万元；未融资 <strong>' + t.unfinanced_count + '</strong> 笔；平均放款时效 <strong>' + renderAvgDays(t.avg_app_to_loan_days) + '</strong>。';
+  }
+  var monthMap = {};
+  yearAssets.forEach(function(a) {
+    var m = (a.chain_date || '').substring(0, 7);
+    if (!m) return;
+    if (!monthMap[m]) monthMap[m] = { new_count: 0, amount: 0 };
+    monthMap[m].new_count += 1;
+    if (a.is_financed || a.is_financing) monthMap[m].amount += (a.financed_amount_wan || 0);
+  });
+  var keys = Object.keys(monthMap).sort();
+  var insightsEl = document.getElementById('yearInsights');
+  if (insightsEl && keys.length) {
+    var bestNew = keys[0], bestAmt = keys[0];
+    keys.forEach(function(m) {
+      if (monthMap[m].new_count > monthMap[bestNew].new_count) bestNew = m;
+      if (monthMap[m].amount > monthMap[bestAmt].amount) bestAmt = m;
+    });
+    var items = [
+      '新增资产最多的月份：<strong>' + bestNew + '</strong>（' + monthMap[bestNew].new_count + ' 笔）',
+      '融资额最高的月份：<strong>' + bestAmt + '</strong>（' + fmt(monthMap[bestAmt].amount) + ' 万元）',
+      '数据覆盖：' + keys.length + ' 个月（' + keys[0] + ' ~ ' + keys[keys.length - 1] + '）'
+    ];
+    items.forEach(function(txt) { insightsEl.insertAdjacentHTML('beforeend', '<li>' + txt + '</li>'); });
+  }
+})();
+
+// 年度分项目汇总表
+var yearTbody = document.getElementById('yearTable');
+yearData.forEach(function(p, idx) {
+  yearTbody.insertAdjacentHTML('beforeend',
+    '<tr>' +
+    '<td class="text-center">' + (idx + 1) + '</td>' +
+    '<td style="max-width:250px;" title="' + p.name + '">' + p.name + '</td>' +
+    '<td style="font-size:12px;">' + (p.bank || '-') + '</td>' +
+    '<td class="text-right">' + p.new_count + '</td>' +
+    '<td class="text-right">' + p.financed_count + '</td>' +
+    '<td class="text-right">' + fmt(p.financed_amount_wan) + '</td>' +
+    '<td class="text-right"><span style="color:var(--coral);font-weight:500;">' + p.unfinanced_count + '</span></td>' +
+    '<td class="text-right">' + renderAvgDays(p.avg_app_to_loan_days) + '</td>' +
+    '<td>' + renderFastestAsset(p.fastest_asset) + '</td>' +
+    '<td class="text-right">' + (p.fastest_asset ? '<span class="days-fast">' + p.fastest_asset.app_to_loan_days + ' 天</span>' : '-') + '</td>' +
+    '</tr>'
+  );
+});
+yearTbody.insertAdjacentHTML('beforeend',
+  '<tr class="summary-row">' +
+  '<td></td><td>合计</td><td>-</td>' +
+  '<td class="text-right">' + yearTotals.new_count + '</td>' +
+  '<td class="text-right">' + yearTotals.financed_count + '</td>' +
+  '<td class="text-right">' + fmt(yearTotals.financed_amount_wan) + '</td>' +
+  '<td class="text-right">' + yearTotals.unfinanced_count + '</td>' +
+  '<td class="text-right">' + renderAvgDays(yearTotals.avg_app_to_loan_days) + '</td>' +
+  '<td>-</td><td class="text-right">-</td>' +
+  '</tr>'
+);
+
+// 分月趋势图
+(function initYearMonthCharts() {
+  var mm = {};
+  yearAssets.forEach(function(a) {
+    var m = (a.chain_date || '').substring(0, 7);
+    if (!m) return;
+    if (!mm[m]) mm[m] = { new_count: 0, amount: 0 };
+    mm[m].new_count += 1;
+    if (a.is_financed || a.is_financing) mm[m].amount += (a.financed_amount_wan || 0);
+  });
+  var keys = Object.keys(mm).sort();
+  if (!keys.length) return;
+  var labels = keys.map(function(m) { return m.substring(5) + '月'; });
+  var counts = keys.map(function(m) { return mm[m].new_count; });
+  var amounts = keys.map(function(m) { return Math.round(mm[m].amount * 100) / 100; });
+  var opts = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { font: { size: 11 } } }, x: { ticks: { font: { size: 10 } } } }
+  };
+  var c1 = document.getElementById('yearMonthCountChart');
+  if (c1) { c1._chart = new Chart(c1.getContext('2d'), { type: 'bar', data: { labels: labels, datasets: [{ label: '新增资产(笔)', data: counts, backgroundColor: '#534AB7', borderRadius: 4 }] }, options: opts }); }
+  var c2 = document.getElementById('yearMonthAmountChart');
+  if (c2) { c2._chart = new Chart(c2.getContext('2d'), { type: 'bar', data: { labels: labels, datasets: [{ label: '融资额(万元)', data: amounts, backgroundColor: '#185FA5', borderRadius: 4 }] }, options: opts }); }
+})();
+
+// 年度资产明细
+document.getElementById('yearFinancedCount').textContent = yearAssets.filter(function(a) { return a.financing_status === 'financed'; }).length;
+document.getElementById('yearFinancingCount').textContent = yearAssets.filter(function(a) { return a.financing_status === 'financing'; }).length;
+document.getElementById('yearUnfinancedCount').textContent = yearAssets.filter(function(a) { return a.financing_status === 'unfinanced'; }).length;
+document.getElementById('yearDiscardedCount').textContent = yearAssets.filter(function(a) { return a.financing_status === 'discarded'; }).length;
+
+function renderYearDetail(filter) {
+  var tbody = document.getElementById('yearDetailTable');
+  var empty = document.getElementById('yearDetailEmpty');
+  tbody.innerHTML = '';
+  var filtered = yearAssets;
+  if (filter === 'financed') filtered = yearAssets.filter(function(a) { return a.financing_status === 'financed'; });
+  if (filter === 'financing') filtered = yearAssets.filter(function(a) { return a.financing_status === 'financing'; });
+  if (filter === 'unfinanced') filtered = yearAssets.filter(function(a) { return a.financing_status === 'unfinanced'; });
+  if (filter === 'discarded') filtered = yearAssets.filter(function(a) { return a.financing_status === 'discarded'; });
+  if (filtered.length === 0) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  filtered.forEach(function(a, i) { tbody.insertAdjacentHTML('beforeend', renderAssetRow(a, i + 1)); });
+}
+
+document.getElementById('yearFilter').addEventListener('click', function(e) {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#yearFilter .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  e.target.classList.add('active');
+  renderYearDetail(e.target.getAttribute('data-filter'));
+});
+
+renderYearDetail('all');
 
 // === All assets tab ===
 var allFinanced = assets.filter(function(a) { return a.financing_status === 'financed'; });
