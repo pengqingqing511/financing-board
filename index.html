@@ -275,6 +275,25 @@
     .chart-row { grid-template-columns: 1fr; }
   }
 
+  /* Project proportion pie */
+  .pie-wrap { display: flex; justify-content: center; margin-top: 16px; }
+  .pie-box {
+    background: #ffffff;
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    width: 100%;
+    max-width: 640px;
+  }
+  .pie-box h4 {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-weight: 500;
+    text-align: center;
+  }
+  .pie-box canvas { max-height: 320px; }
+
   /* Compare cells in week/month summary */
   .compare-cell { display: flex; flex-direction: column; align-items: flex-end; }
   .compare-value { font-weight: 500; }
@@ -302,7 +321,7 @@
 <div class="container">
   <header>
     <h1>融资项目进度看板</h1>
-    <p>彭清清 · 2026-10-13 16:41</p>
+    <p>彭清清 · 2026-10-13 17:21</p>
   </header>
 
   <section class="cards">
@@ -430,6 +449,9 @@
           <div class="chart-box"><h4>融资额对比（万元）</h4><canvas id="weekAmountChart"></canvas></div>
           <div class="chart-box"><h4>平均放款时效对比（天）</h4><canvas id="weekDaysChart"></canvas></div>
         </div>
+        <div class="pie-wrap">
+          <div class="pie-box"><h4>各项目新增资产占比</h4><canvas id="weekProjectPie"></canvas></div>
+        </div>
       </div>
       <p class="section-sub">本周（2026-10-12 ~ 2026-10-13）各项目融资汇总</p>
       <div class="table-wrap">
@@ -504,6 +526,9 @@
           <div class="chart-box"><h4>融资额对比（万元）</h4><canvas id="monthAmountChart"></canvas></div>
           <div class="chart-box"><h4>平均放款时效对比（天）</h4><canvas id="monthDaysChart"></canvas></div>
         </div>
+        <div class="pie-wrap">
+          <div class="pie-box"><h4>各项目新增资产占比</h4><canvas id="monthProjectPie"></canvas></div>
+        </div>
       </div>
       <p class="section-sub">本月（2026-10-01 ~ 2026-10-13）各项目融资汇总</p>
       <div class="table-wrap">
@@ -576,6 +601,9 @@
         <div class="chart-row">
           <div class="chart-box"><h4>分月新增资产（笔）</h4><canvas id="yearMonthCountChart"></canvas></div>
           <div class="chart-box"><h4>分月融资额（万元）</h4><canvas id="yearMonthAmountChart"></canvas></div>
+        </div>
+        <div class="pie-wrap">
+          <div class="pie-box"><h4>各项目新增资产占比</h4><canvas id="yearProjectPie"></canvas></div>
         </div>
       </div>
       <p class="section-sub">2026 年度（2026-01-01 ~ 2026-10-13）各项目融资汇总</p>
@@ -1006,10 +1034,49 @@ function initCompareCharts(key, countCanvasId, amountCanvasId, daysCanvasId) {
   });
 }
 
+// === Project proportion pie (doughnut) ===
+function renderProjectPie(canvasId, rows, valueKey, unit) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var items = (rows || []).filter(function(p) { return (p[valueKey] || 0) > 0; });
+  if (!items.length) {
+    var box = canvas.closest('.pie-box');
+    if (box) box.style.display = 'none';
+    return;
+  }
+  var labels = items.map(function(p) { return p.name; });
+  var data = items.map(function(p) { return p[valueKey] || 0; });
+  var palette = ['#534AB7','#185FA5','#3B6D11','#BA7517','#993C1D','#7B1FA2','#00897B','#C2185B','#5E35B1','#00838F','#EF6C00','#3949AB','#6D4C41','#455A64'];
+  var colors = items.map(function(p, i) { return palette[i % palette.length]; });
+  var total = data.reduce(function(s, v) { return s + v; }, 0);
+  safeChartDestroy(canvasId);
+  canvas._chart = new Chart(canvas.getContext('2d'), {
+    type: 'doughnut',
+    data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderColor: '#fff', borderWidth: 2 }] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '50%',
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              var pct = total ? (ctx.parsed / total * 100).toFixed(1) : '0.0';
+              return ctx.label + '：' + ctx.parsed + ' ' + unit + '（' + pct + '%）';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
 // === Week summary tab ===
 document.getElementById('badgeWeek').textContent = weekTotals.new_count;
 renderAnalysis('week', 'week');
 initCompareCharts('week', 'weekNewCountChart', 'weekAmountChart', 'weekDaysChart');
+renderProjectPie('weekProjectPie', weekData, 'new_count', '笔');
 
 var weekTbody = document.getElementById('weekTable');
 weekData.forEach(function(p, idx) {
@@ -1048,6 +1115,7 @@ weekTbody.insertAdjacentHTML('beforeend',
 document.getElementById('badgeMonth').textContent = monthTotals.new_count;
 renderAnalysis('month', 'month');
 initCompareCharts('month', 'monthNewCountChart', 'monthAmountChart', 'monthDaysChart');
+renderProjectPie('monthProjectPie', monthData, 'new_count', '笔');
 
 var monthTbody = document.getElementById('monthTable');
 monthData.forEach(function(p, idx) {
@@ -1161,6 +1229,7 @@ var yearStart = '2026-01-01';
 var yearAssets = assets.filter(function(a) { return a.chain_date && a.chain_date >= yearStart && a.chain_date <= todayStr; });
 
 document.getElementById('badgeYear').textContent = yearTotals.new_count;
+renderProjectPie('yearProjectPie', yearData, 'new_count', '笔');
 
 // 年度总览文字 + 洞察
 (function renderYearOverview() {
